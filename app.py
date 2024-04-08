@@ -6,9 +6,11 @@ import streamlit as st
 URL = "https://marple.research.crossref.org"
 
 
-examples = {"reference-matching": "1. Boucher RC (2004) New concepts of the pathogenesis of cystic fibrosis lung disease. Eur Resp J 23: 146–158.",
-            "preprint-matching": '{"title": ["Functional single-cell genomics of human cytomegalovirus infection"], "issued": {"date-parts": [[2021, 10, 25]]}, "author": [{"given": "Marco Y.", "family": "Hein"}, {"given": "Jonathan S.", "family": "Weissman", "ORCID": "http://orcid.org/0000-0003-2445-670X"}]}',
-            "affiliation-matching": "Department of Molecular Medicine, Sapporo Medical University, Sapporo 060-8556, Japan"}
+examples = {
+    "reference-matching": "1. Boucher RC (2004) New concepts of the pathogenesis of cystic fibrosis lung disease. Eur Resp J 23: 146–158.",
+    "preprint-matching": '{"title": ["Functional single-cell genomics of human cytomegalovirus infection"], "issued": {"date-parts": [[2021, 10, 25]]}, "author": [{"given": "Marco Y.", "family": "Hein"}, {"given": "Jonathan S.", "family": "Weissman", "ORCID": "http://orcid.org/0000-0003-2445-670X"}]}',
+    "affiliation-matching": "Department of Molecular Medicine, Sapporo Medical University, Sapporo 060-8556, Japan",
+}
 
 
 @st.cache_data(show_spinner=False)
@@ -22,19 +24,24 @@ def load_strategies(task):
     strategies = requests.get(f"{URL}/tasks/{task}/strategies").json()["message"][
         "items"
     ]
-    strategies = [s["id"] for s in strategies if s["default"]] + [s["id"] for s in strategies if not s["default"]]
+    strategies = [(s["id"], s["description"]) for s in strategies if s["default"]] + [
+        (s["id"], s["description"]) for s in strategies if not s["default"]
+    ]
     return strategies
 
 
 def clear_text():
     st.session_state["input"] = ""
 
+
 def matching_view(task):
     print("matching view")
     st.title(task)
     strategies = load_strategies(task)
 
-    strategy = st.selectbox("Choose strategy:", options=strategies)
+    strategy = st.selectbox(
+        "Choose strategy:", options=strategies, format_func=lambda x: f"{x[0]} ({x[1]})"
+    )
     input = st.text_input("Input:", "", key="input")
     if task in examples:
         st.write("Example input:")
