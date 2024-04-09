@@ -51,7 +51,7 @@ def matching_view(task):
     if submit:
         with st.spinner("Matching..."):
             data = requests.get(
-                f"{URL}/match", {"task": task, "strategy": strategy, "input": input}
+                f"{URL}/match", {"task": task, "strategy": strategy[0], "input": input}
             ).json()["message"]["items"]
         if data:
             table_data = []
